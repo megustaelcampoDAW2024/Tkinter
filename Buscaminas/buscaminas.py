@@ -37,6 +37,9 @@ def on_left_click(r, c):
     else:
         buttons[r][c]['text'] = ''
         buttons[r][c]['bg'] = 'white'
+        count = count_adjacent_mines(buttons, r, c)
+        if count > 0:
+            buttons[r][c]['text'] = str(count)
 
 # Manejar clic derecho en una celda
 def on_right_click(r, c):
@@ -53,6 +56,17 @@ def reveal_all_mines():
     for (r, c) in mines:
         buttons[r][c]['text'] = 'M'
         buttons[r][c]['bg'] = 'red'
+
+# Contar minas adyacentes a una celda
+def count_adjacent_mines(buttons, r, c):
+    rows = len(buttons)
+    cols = len(buttons[0])
+    count = 0
+    for i in range(max(0, r-1), min(rows, r+2)):
+        for j in range(max(0, c-1), min(cols, c+2)):
+            if (i, j) in mines:
+                count += 1
+    return count
 
 # Configuración de la ventana principal
 window = tk.Tk()
