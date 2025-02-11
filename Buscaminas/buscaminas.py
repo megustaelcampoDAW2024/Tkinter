@@ -10,6 +10,7 @@ def create_buttons(frame, rows, cols):
             button = tk.Button(frame, width=2, height=1, bg='gray')
             button.grid(row=r, column=c)
             button.bind('<Button-1>', lambda e, r=r, c=c: on_left_click(r, c))
+            button.bind('<Button-3>', lambda e, r=r, c=c: on_right_click(r, c))
             row.append(button)
         buttons.append(row)
     return buttons
@@ -34,6 +35,16 @@ def on_left_click(r, c):
     else:
         buttons[r][c]['text'] = ''
         buttons[r][c]['bg'] = 'white'
+
+# Manejar clic derecho en una celda
+def on_right_click(r, c):
+    button = buttons[r][c]
+    if button['text'] == '🚩':
+        button['text'] = ''
+        button['bg'] = 'gray'
+    else:
+        button['text'] = '🚩'
+        button['bg'] = 'yellow'
 
 # Configuración de la ventana principal
 window = tk.Tk()
