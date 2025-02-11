@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 from tkinter import messagebox
+import time
 
 # Crear botones en la cuadrícula
 def create_buttons(frame, rows, cols):
@@ -18,9 +19,10 @@ def create_buttons(frame, rows, cols):
 
 # Colocar minas aleatoriamente en la cuadrícula
 def place_mines(buttons, num_mines):
-    mines = set()
+    global mines
     rows = len(buttons)
     cols = len(buttons[0])
+    mines = set()
     while len(mines) < num_mines:
         r = random.randint(0, rows - 1)
         c = random.randint(0, cols - 1)
@@ -79,6 +81,12 @@ def reveal(buttons, r, c):
                 if (i, j) != (r, c):
                     reveal(buttons, i, j)
 
+# Actualizar el temporizador
+def update_timer():
+    elapsed_time = int(time.time() - start_time)
+    timer_label.config(text=f"Time: {elapsed_time}s")
+    window.after(1000, update_timer)
+
 # Configuración de la ventana principal
 window = tk.Tk()
 window.title("Buscaminas")
@@ -88,5 +96,11 @@ frame.pack()
 
 buttons = create_buttons(frame, 10, 10)
 mines = place_mines(buttons, 10)
+
+# Configuración del temporizador
+start_time = time.time()
+timer_label = tk.Label(window, text="Time: 0s")
+timer_label.pack()
+update_timer()
 
 window.mainloop()
