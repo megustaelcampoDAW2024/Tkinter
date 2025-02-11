@@ -412,3 +412,22 @@ window.mainloop()
 
     *   Esta línea es esencial para que la interfaz gráfica funcione. `mainloop()` entra en un bucle infinito que espera eventos (como clics de botón, pulsaciones de teclado, etc.) y los procesa, actualizando la interfaz según sea necesario.  Sin `mainloop()`, la ventana se mostraría brevemente y luego se cerraría sin ser interactiva.
  
+### 3. Flujo General del Juego
+
+**Inicialización**: Al iniciar el programa, se configura la ventana principal, se crean los marcos, etiquetas, menú de dificultad y el botón de reinicio. Se crea el tablero inicial para el primer nivel de dificultad. El temporizador se inicia y el contador de minas se actualiza.
+
+**Jugando**: El jugador interactúa con el tablero haciendo clic izquierdo para revelar celdas y clic derecho para marcar posibles minas.
+
+*   **Clic Izquierdo (`on_left_click` -> `reveal`)**: Al hacer clic izquierdo en una celda, se llama a `on_left_click`, que a su vez llama a `reveal`. `reveal` determina si la celda es una mina o no, y actualiza la celda y posiblemente las celdas vecinas (en caso de celdas vacías). Si se revela una mina, el juego termina.
+*   **Clic Derecho (`on_right_click`)**: Al hacer clic derecho, se llama a `on_right_click`, que permite al jugador marcar o desmarcar una celda con una bandera. Tras marcar o desmarcar, se verifica si el jugador ha ganado llamando a `check_win()`.
+
+**Ganar/Perder**:
+
+*   **Perder**:  Ocurre al hacer clic izquierdo en una mina. Se llama a `reveal_all_mines()` para mostrar todas las minas, se muestra un mensaje de "Game Over", y se reinicia el juego con `restart_program()`.
+*   **Ganar**: Ocurre cuando `check_win()` devuelve `True` tras colocar banderas correctamente en todas las minas. Se muestra un mensaje de "Congratulations" con el tiempo de juego y se reinicia el juego.
+
+**Reinicio**: El juego se reinicia en varias situaciones llamando a `restart_program()`: al ganar, perder, hacer clic en el botón "Restart", o cambiar el nivel de dificultad. El reinicio implica crear un nuevo tablero, reiniciar el temporizador y actualizar el contador de minas.
+
+**Temporizador**:  La función `update_timer()` se ejecuta recursivamente cada segundo gracias a `window.after(1000, update_timer)`.  Calcula el tiempo transcurrido y actualiza la etiqueta `timer_label`.
+
+**Menú de Dificultad**:  El menú desplegable permite al jugador cambiar el nivel de dificultad en cualquier momento. Al cambiar el nivel, se reinicia el juego con el nuevo tamaño de tablero y número de minas.
