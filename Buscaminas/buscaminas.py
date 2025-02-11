@@ -27,7 +27,13 @@ def place_mines(buttons, num_mines):
 
 # Manejar clic izquierdo en una celda
 def on_left_click(r, c):
-    print(f"Clic en la celda ({r}, {c})")
+    if (r, c) in mines:
+        buttons[r][c]['text'] = 'M'
+        buttons[r][c]['bg'] = 'red'
+        print("¡Has perdido!")
+    else:
+        buttons[r][c]['text'] = ''
+        buttons[r][c]['bg'] = 'white'
 
 # Configuración de la ventana principal
 window = tk.Tk()
