@@ -233,3 +233,61 @@ def on_right_click(r, c):
         *   Si no tiene bandera, coloca una bandera (`button['text'] = '🚩'`) y cambia el color de fondo a amarillo.
     *   Llama a `update_mine_counter()` para actualizar el contador de minas restantes.
     *   Llama a `check_win()` para verificar si el jugador ha ganado después de marcar o desmarcar una bandera. Si gana, calcula el tiempo transcurrido, muestra un mensaje "Congratulations" con el tiempo en una ventana emergente usando `messagebox.showinfo()`, y reinicia el juego con `restart_program()`.
+
+ *   **`update_timer()`:**
+
+```python
+# Actualizar el temporizador
+def update_timer():
+    elapsed_time = int(time.time() - start_time)
+    timer_label.config(text=f" | Time: {elapsed_time}s")
+    window.after(1000, update_timer)
+```
+*   **Lógica:** Actualiza la etiqueta `timer_label` con el tiempo transcurrido desde el inicio del juego. Se llama recursivamente cada segundo para actualizar el temporizador en tiempo real.
+*   **Variables Globales:** Utiliza `start_time`.
+*   **Tkinter:**
+    *   Calcula el tiempo transcurrido: `elapsed_time = int(time.time() - start_time)`.
+    *   Actualiza el texto de la etiqueta: `timer_label.config(text=f" | Time: {elapsed_time}s")`.
+    *   **Programación recursiva con `window.after(1000, update_timer)`:**  Programa que la función `update_timer` se vuelva a ejecutar después de 1000 milisegundos (1 segundo), creando un bucle de actualización del temporizador.
+
+ *   **`update_board()`:**
+
+```python
+# Actualizar el tablero según el nivel de dificultad
+def update_board():
+    global buttons, current_level
+    for row in buttons:
+        for button in row:
+            button.destroy()
+    level = difficulty_levels[current_level]
+    rows, cols = level["rows"], level["cols"]
+    num_mines = (rows * cols) // 8   # Número reducido de minas
+    buttons = create_buttons(frame, rows, cols)
+    place_mines(buttons, num_mines)
+```
+*   **Lógica:**  Actualiza el tablero de juego para un nuevo juego o para cambiar el nivel de dificultad.  Elimina los botones existentes, crea nuevos botones con las dimensiones del nivel de dificultad actual y coloca las minas.
+*   **Variables Globales:** Modifica `buttons` y `current_level`.
+*   **Tkinter:**
+    *   **Destruir botones existentes:** Itera sobre la lista `buttons` y utiliza `button.destroy()` para eliminar cada botón de la interfaz gráfica antes de crear uno nuevo.
+    *   Obtiene el nivel de dificultad actual de la lista `difficulty_levels` usando `current_level`.
+    *   Extrae `rows` y `cols` del nivel de dificultad.
+    *   Calcula el número de minas `num_mines` en función del tamaño del tablero.
+    *   Crea nuevos botones usando `create_buttons(frame, rows, cols)`.
+    *   Coloca las minas usando `place_mines(buttons, num_mines)`.
+ 
+*   **`set_difficulty(level)`:**
+
+```python
+# Establecer el nivel de dificultad
+def set_difficulty(level):
+    global current_level, start_time
+    current_level = level
+    start_time = time.time()  # Reiniciar el temporizador
+    update_board()
+```
+*   **Lógica:** Establece el nivel de dificultad del juego y reinicia el juego con el nuevo nivel.
+*   **Variables Globales:** Modifica `current_level` y `start_time`.
+*   **Funciones:**
+    *   Actualiza `current_level` con el nuevo nivel seleccionado.
+    *   Reinicia el temporizador `start_time = time.time()`.
+    *   Actualiza el tablero llamando a `update_board()`.
