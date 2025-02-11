@@ -291,3 +291,124 @@ def set_difficulty(level):
     *   Actualiza `current_level` con el nuevo nivel seleccionado.
     *   Reinicia el temporizador `start_time = time.time()`.
     *   Actualiza el tablero llamando a `update_board()`.
+
+#### 1.3. Configuración de la Ventana Principal y Menús
+
+```python
+# Configuración de la ventana principal
+window = tk.Tk()
+window.state('zoomed')
+window.title("Buscaminas")
+
+# Marco del título
+title_frame = tk.Frame(window)
+title_frame.pack(pady=10)
+
+title_label = tk.Label(title_frame, text="BUSCAMINAS", font=("Arial Bold", 24))
+title_label.pack()
+
+# Marco de información
+info_frame = tk.Frame(window)
+info_frame.pack(pady=5)
+
+mine_counter_label = tk.Label(info_frame, text="Mines: 0", font=("Arial", 14))
+mine_counter_label.pack(side=tk.LEFT)
+
+timer_label = tk.Label(info_frame, text=" | Time: 0s", font=("Arial", 14))
+timer_label.pack(side=tk.LEFT)
+
+# Marco de botones
+button_frame = tk.Frame(window)
+button_frame.pack(pady=10)
+
+# Crear un menú desplegable para los niveles de dificultad
+difficulty_var = tk.StringVar(window)
+difficulty_var.set(f"{difficulty_levels[0]['rows']}x{difficulty_levels[0]['cols']}")
+
+difficulty_menu = tk.OptionMenu(button_frame, difficulty_var, *[f"{level['rows']}x{level['cols']}" for level in difficulty_levels], command=lambda value: set_difficulty([f"{level['rows']}x{level['cols']}" for level in difficulty_levels].index(value)))
+difficulty_menu.grid(row=0, column=0, padx=5)
+
+restart_button = tk.Button(button_frame, text="Restart", command=restart_program, bg='orange')
+restart_button.grid(row=0, column=1, padx=5)
+
+# Marco del tablero de juego
+frame = tk.Frame(window, bd=5, relief="solid", bg="gray")
+frame.pack(padx=10, pady=10)
+
+buttons = []
+start_time = time.time()
+update_board()
+update_timer()
+update_mine_counter()
+
+window.mainloop()
+```
+
+*   `window = tk.Tk()`: Crea la ventana principal de la aplicación. Es la base sobre la que se construirá toda la interfaz gráfica.
+*   `window.state('zoomed')`: Maximiza la ventana al iniciar. Esto hace que la ventana ocupe toda la pantalla al arrancar el juego, proporcionando una mejor experiencia de usuario, especialmente en pantallas grandes.
+*   `window.title("Buscaminas")`: Establece el título que se muestra en la barra de título de la ventana, en este caso, "Buscaminas".
+
+*   **Marcos (`tk.Frame`)**: Se utilizan marcos para organizar la interfaz de manera lógica y visual. Son contenedores para otros widgets.
+
+    *   `title_frame = tk.Frame(window)`:  Crea un marco para el título del juego. Se asocia a la ventana principal (`window`).
+    *   `title_frame.pack(pady=10)`:  Empaqueta el `title_frame` dentro de la ventana. `pack` es un gestor de geometría que organiza los widgets. `pady=10` añade un espacio vertical de 10 píxeles alrededor del marco.
+    *   `info_frame = tk.Frame(window)`: Crea un marco para contener la información del juego, como el contador de minas y el temporizador.
+    *   `info_frame.pack(pady=5)`: Empaqueta el `info_frame`, similar al `title_frame` pero con un espacio vertical menor (`pady=5`).
+    *   `button_frame = tk.Frame(window)`:  Crea un marco para agrupar el menú de dificultad y el botón de reinicio.
+    *   `button_frame.pack(pady=10)`: Empaqueta el `button_frame`.
+    *   `frame = tk.Frame(window, bd=5, relief="solid", bg="gray")`:  Crea el marco principal para el tablero de juego.
+        *   `bd=5`:  Establece un borde de 5 píxeles alrededor del marco.
+        *   `relief="solid"`:  Define el estilo del borde como "sólido", lo que le da un aspecto visual definido.
+        *   `bg="gray"`:  Establece el color de fondo del marco a gris.
+    *   `frame.pack(padx=10, pady=10)`: Empaqueta el `frame`, añadiendo espacio horizontal (`padx=10`) y vertical (`pady=10`) a su alrededor.
+
+*   **Etiquetas (`tk.Label`)**: Se utilizan para mostrar texto estático en la interfaz.
+
+    *   `title_label = tk.Label(title_frame, text="BUSCAMINAS", font=("Arial Bold", 24))`: Crea una etiqueta para el título "BUSCAMINAS".
+        *   `title_frame`:  Indica que la etiqueta se coloca dentro del marco `title_frame`.
+        *   `text="BUSCAMINAS"`:  Establece el texto que se mostrará.
+        *   `font=("Arial Bold", 24)`:  Define la fuente como Arial en negrita y tamaño 24.
+    *   `title_label.pack()`:  Empaqueta la etiqueta dentro de `title_frame`, haciendo que se muestre.
+    *   `mine_counter_label = tk.Label(info_frame, text="Mines: 0", font=("Arial", 14))`: Crea una etiqueta para el contador de minas, inicialmente mostrando "Mines: 0".
+        *   `info_frame`:  La etiqueta se coloca en el `info_frame`.
+        *   `font=("Arial", 14)`:  Fuente Arial, tamaño 14.
+    *   `mine_counter_label.pack(side=tk.LEFT)`:  Empaqueta la etiqueta en `info_frame` y la alinea a la izquierda (`side=tk.LEFT`).
+    *   `timer_label = tk.Label(info_frame, text=" | Time: 0s", font=("Arial", 14))`:  Crea una etiqueta para el temporizador, inicialmente mostrando " | Time: 0s".
+    *   `timer_label.pack(side=tk.LEFT)`:  Empaqueta la etiqueta en `info_frame` y la alinea a la izquierda, al lado del contador de minas.
+
+*   **Menú Desplegable de Dificultad (`tk.OptionMenu`)**:  Permite al usuario seleccionar el nivel de dificultad.
+
+    *   `difficulty_var = tk.StringVar(window)`: Crea una variable de control de Tkinter (`StringVar`) asociada a la ventana principal. Esta variable almacenará la opción de dificultad seleccionada en el menú.
+    *   `difficulty_var.set(f"{difficulty_levels[0]['rows']}x{difficulty_levels[0]['cols']}")`:  Establece el valor inicial de `difficulty_var` con el primer nivel de dificultad de la lista `difficulty_levels`. Esto hace que el menú muestre inicialmente el primer nivel.
+    *   `difficulty_menu = tk.OptionMenu(...)`: Crea el menú desplegable (`OptionMenu`).
+        *   `button_frame`:  Indica que el menú se coloca en el marco `button_frame`.
+        *   `difficulty_var`:  Asocia el menú a la variable de control `difficulty_var`. Los cambios en el menú actualizarán esta variable.
+        *   `*[f"{level['rows']}x{level['cols']}" for level in difficulty_levels]`: Genera las opciones que se mostrarán en el menú. Utiliza una lista por comprensión para iterar sobre la lista `difficulty_levels` y formatear cada nivel como una cadena "filas x columnas" (e.g., "10x10", "15x15"). El `*` desempaqueta esta lista para que `OptionMenu` reciba las opciones individualmente.
+        *   `command=lambda value: set_difficulty(...)`: Define la función que se ejecutará cuando el usuario seleccione una opción del menú.
+            *   `lambda value: set_difficulty(...)`:  Utiliza una función lambda anónima que toma el valor seleccionado (`value`) como argumento y llama a la función `set_difficulty`.
+            *   `[f"{level['rows']}x{level['cols']}" for level in difficulty_levels].index(value)`:  Dentro de la función `set_difficulty`, se encuentra el índice del nivel seleccionado en la lista `difficulty_levels` buscando la cadena de formato "filas x columnas" que coincide con el valor seleccionado (`value`).
+    *   `difficulty_menu.grid(row=0, column=0, padx=5)`: Coloca el menú en el `button_frame` usando el gestor de geometría `grid`.
+        *   `row=0, column=0`:  Lo coloca en la primera fila y primera columna de la cuadrícula del `button_frame`.
+        *   `padx=5`:  Añade un espacio horizontal de 5 píxeles a los lados del menú.
+
+*   **Botón de Reinicio (`tk.Button`)**: Permite reiniciar el juego manualmente.
+
+    *   `restart_button = tk.Button(...)`: Crea el botón "Restart".
+        *   `button_frame`:  Indica que se coloca en el marco `button_frame`.
+        *   `text="Restart"`:  Establece el texto del botón como "Restart".
+        *   `command=restart_program`:  Asocia la función `restart_program` a la acción de hacer clic en el botón. Cuando se hace clic, se ejecuta `restart_program`.
+        *   `bg='orange'`:  Establece el color de fondo del botón a naranja.
+    *   `restart_button.grid(row=0, column=1, padx=5)`:  Coloca el botón en el `button_frame` usando `grid`. Se coloca en la primera fila (`row=0`) y segunda columna (`column=1`), a la derecha del menú de dificultad.
+
+*   **Creación inicial del tablero**:  Configuración inicial al iniciar el juego.
+
+    *   `buttons = []`: Inicializa la lista global `buttons` como una lista vacía. Esta lista almacenará la cuadrícula de botones que representan las celdas del juego.
+    *   `start_time = time.time()`:  Establece la variable global `start_time` con el tiempo actual. Esto se utiliza para medir el tiempo de juego.
+    *   `update_board()`: Llama a la función `update_board` para crear el tablero de juego inicial. Esto crea los botones, coloca las minas y configura el tablero según el nivel de dificultad predeterminado (el primero de la lista `difficulty_levels`).
+    *   `update_timer()`: Inicia el temporizador llamando a `update_timer`. Esta función se encargará de actualizar la etiqueta del temporizador cada segundo.
+    *   `update_mine_counter()`:  Actualiza el contador de minas llamando a `update_mine_counter`. Esto asegura que el contador de minas se muestre correctamente al inicio del juego.
+
+*   **`window.mainloop()`**: Inicia el bucle principal de Tkinter.
+
+    *   Esta línea es esencial para que la interfaz gráfica funcione. `mainloop()` entra en un bucle infinito que espera eventos (como clics de botón, pulsaciones de teclado, etc.) y los procesa, actualizando la interfaz según sea necesario.  Sin `mainloop()`, la ventana se mostraría brevemente y luego se cerraría sin ser interactiva.
+ 
