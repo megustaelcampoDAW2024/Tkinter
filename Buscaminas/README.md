@@ -104,3 +104,132 @@ def update_mine_counter():
 *   **Tkinter:**
     *   Calcula `remaining_mines`: Total de minas (`len(mines)`) menos el número de banderas (`'🚩'`) en la cuadrícula.  Utiliza una expresión generadora y `sum()` para contar las banderas de manera eficiente.
     *   Utiliza `mine_counter_label.config(text=f"Mines: {remaining_mines}")` para actualizar el texto de la etiqueta con el nuevo valor.
+
+*   **`restart_program()`:**
+
+```python
+# Reiniciar el programa
+def restart_program():
+    global start_time
+    start_time = time.time()
+    update_board()
+    update_timer()
+    update_mine_counter()
+```
+*   **Lógica:** Reinicia el juego completamente, estableciendo un nuevo tablero, reiniciando el temporizador y actualizando el contador de minas.
+*   **Variables Globales:** Modifica `start_time`.
+*   **Funciones:** Llama a `update_board()`, `update_timer()`, y `update_mine_counter()` para realizar el reinicio.
+
+*   **`reveal_all_mines()`:**
+
+```python
+# Revelar todas las minas en la cuadrícula
+def reveal_all_mines():
+    for (r, c) in mines:
+        buttons[r][c]['text'] = 'M'
+        buttons[r][c]['bg'] = 'red'
+```
+*   **Lógica:** Revela la posición de todas las minas en el tablero cuando el jugador pierde.
+*   **Tkinter:**
+    *   Itera sobre el conjunto `mines`.
+    *   Para cada mina `(r, c)`, cambia el texto del botón a 'M' (`buttons[r][c]['text'] = 'M'`) y el color de fondo a rojo (`buttons[r][c]['bg'] = 'red'`).
+
+*   **`reveal(buttons, r, c)`:**
+
+```python
+# Revelar una celda y sus adyacentes si no hay minas
+def reveal(buttons, r, c):
+    if buttons[r][c]['state'] == 'disabled':
+        return
+    if buttons[r][c]['text'] == '🚩':
+        buttons[r][c]['text'] = ''
+        buttons[r][c]['bg'] = 'gray'
+        update_mine_counter()
+    buttons[r][c]['state'] = 'disabled'
+    buttons[r][c]['bg'] = 'white'
+    if (r, c) in mines:
+        buttons[r][c]['text'] = 'M'
+        reveal_all_mines()
+        messagebox.showinfo("Game Over", "You clicked on a mine!")
+        restart_program()
+    else:
+        count = count_adjacent_mines(buttons, r, c)
+        if count > 0:
+            buttons[r][c]['text'] = str(count)
+            colors = ['blue', 'green', 'red', 'purple', 'maroon', 'turquoise', 'black', 'gray']
+            buttons[r][c]['fg'] = colors[count-1]
+        else:
+            for i in range(max(0, r-1), min(len(buttons), r+2)):
+                for j in range(max(0, c-1), min(len(buttons[0]), c+2)):
+                    if (i, j) != (r, c):
+                        reveal(buttons, i, j)
+```
+*   **Lógica:** Revela una celda en la posición `(r, c)` y realiza acciones dependiendo de si contiene una mina o no, y del número de minas adyacentes. Es la función central de la lógica del juego.
+*   **Tkinter:**
+    *   **Verificación de estado deshabilitado:** `if buttons[r][c]['state'] == 'disabled': return`  Si la celda ya está revelada (deshabilitada), no hace nada.
+    *   **Desmarcar bandera:** `if buttons[r][c]['text'] == '🚩': ... update_mine_counter()` Si la celda está marcada con una bandera, la desmarca, restaura el color gris original y actualiza el contador de minas.
+    *   **Deshabilitar celda:** `buttons[r][c]['state'] = 'disabled'` Deshabilita el botón para que no se pueda volver a clicar.
+    *   **Cambiar color de fondo:** `buttons[r][c]['bg'] = 'white'` Cambia el color de fondo a blanco para indicar que está revelada.
+    *   **Mina detectada:** `if (r, c) in mines: ... messagebox.showinfo(...) restart_program()` Si la celda contiene una mina, muestra 'M', revela todas las minas con `reveal_all_mines()`, muestra un mensaje "Game Over" en una ventana emergente usando `messagebox.showinfo()`, y reinicia el juego con `restart_program()`.
+    *   **Contar minas adyacentes:** `else: count = count_adjacent_mines(buttons, r, c)` Si no es una mina, cuenta las minas adyacentes.
+    *   **Mostrar número o expandir:**
+        *   Si `count > 0`: Muestra el número de minas adyacentes como texto en el botón (`buttons[r][c]['text'] = str(count)`), y establece el color del texto según el número usando una lista de colores (`buttons[r][c]['fg'] = colors[count-1]`).
+        *   Si `count == 0`:  Expande recursivamente a las celdas vecinas vacías.  Utiliza bucles anidados para iterar sobre las celdas vecinas y llama recursivamente a `reveal(buttons, i, j)` para cada vecino que no sea la celda original. La recursión es crucial para la mecánica de expansión del Buscaminas.
+
+*   **`on_left_click(r, c)`:**
+
+```python
+# Manejar clic izquierdo en una celda
+def on_left_click(r, c):
+    reveal(buttons, r, c)
+```
+*   **Lógica:** Maneja el evento de clic izquierdo en una celda. Simplemente llama a la función `reveal(buttons, r, c)` para revelar la celda clicada.
+
+*   **`check_win()`:**
+
+```python
+# Verificar si el jugador ha ganado
+def check_win():
+    if sum(button['text'] == '🚩' for row in buttons for button in row) > len(mines):
+        return False
+    for (r, c) in mines:
+        if buttons[r][c]['text'] != '🚩':
+            return False
+    return True
+```
+*   **Lógica:** Verifica si el jugador ha ganado el juego.
+*   **Condiciones de victoria:** El jugador gana si todas las minas están marcadas correctamente con banderas y ninguna celda sin mina está marcada.
+*   **Algoritmo:**
+    *   Verifica que el número de banderas no exceda el número de minas (`if sum(...) > len(mines): return False`).
+    *   Itera sobre el conjunto `mines`. Para cada mina `(r, c)`, verifica que el texto del botón correspondiente sea una bandera (`buttons[r][c]['text'] != '🚩'`). Si alguna mina no está marcada, retorna `False`.
+    *   Si todas las minas están marcadas correctamente, retorna `True`.
+
+ *   **`on_right_click(r, c)`:**
+
+```python
+# Manejar clic derecho en una celda
+def on_right_click(r, c):
+    button = buttons[r][c]
+    if button['state'] == 'disabled':
+        return
+    if button['text'] == '🚩':
+        button['text'] = ''
+        button['bg'] = 'gray'
+    else:
+        button['text'] = '🚩'
+        button['bg'] = 'yellow'
+    update_mine_counter()
+    if check_win():
+        elapsed_time = int(time.time() - start_time)
+        messagebox.showinfo("Congratulations", f"You have flagged all mines correctly in {elapsed_time} seconds!")
+        restart_program()
+```
+*   **Lógica:** Maneja el evento de clic derecho en una celda. Permite al jugador marcar o desmarcar una celda con una bandera.
+*   **Tkinter:**
+    *   Obtiene el botón clicado: `button = buttons[r][c]`.
+    *   **Verificar estado deshabilitado:** `if button['state'] == 'disabled': return` Si la celda ya está revelada, no hace nada.
+    *   **Alternar bandera:**
+        *   Si el botón ya tiene una bandera (`button['text'] == '🚩'`), la elimina (`button['text'] = ''`) y restaura el color de fondo gris.
+        *   Si no tiene bandera, coloca una bandera (`button['text'] = '🚩'`) y cambia el color de fondo a amarillo.
+    *   Llama a `update_mine_counter()` para actualizar el contador de minas restantes.
+    *   Llama a `check_win()` para verificar si el jugador ha ganado después de marcar o desmarcar una bandera. Si gana, calcula el tiempo transcurrido, muestra un mensaje "Congratulations" con el tiempo en una ventana emergente usando `messagebox.showinfo()`, y reinicia el juego con `restart_program()`.
