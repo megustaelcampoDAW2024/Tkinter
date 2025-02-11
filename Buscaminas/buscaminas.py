@@ -9,6 +9,7 @@ def create_buttons(frame, rows, cols):
         for c in range(cols):
             button = tk.Button(frame, width=2, height=1, bg='gray')
             button.grid(row=r, column=c)
+            button.bind('<Button-1>', lambda e, r=r, c=c: on_left_click(r, c))
             row.append(button)
         buttons.append(row)
     return buttons
@@ -23,6 +24,10 @@ def place_mines(buttons, num_mines):
         c = random.randint(0, cols - 1)
         mines.add((r, c))
     return mines
+
+# Manejar clic izquierdo en una celda
+def on_left_click(r, c):
+    print(f"Clic en la celda ({r}, {c})")
 
 # Configuración de la ventana principal
 window = tk.Tk()
