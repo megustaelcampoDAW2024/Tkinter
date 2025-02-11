@@ -35,11 +35,7 @@ def on_left_click(r, c):
         reveal_all_mines()
         messagebox.showinfo("Game Over", "¡Has perdido!")
     else:
-        buttons[r][c]['text'] = ''
-        buttons[r][c]['bg'] = 'white'
-        count = count_adjacent_mines(buttons, r, c)
-        if count > 0:
-            buttons[r][c]['text'] = str(count)
+        reveal(buttons, r, c)
 
 # Manejar clic derecho en una celda
 def on_right_click(r, c):
@@ -67,6 +63,21 @@ def count_adjacent_mines(buttons, r, c):
             if (i, j) in mines:
                 count += 1
     return count
+
+# Revelar una celda y sus adyacentes si no hay minas
+def reveal(buttons, r, c):
+    if buttons[r][c]['state'] == 'disabled':
+        return
+    buttons[r][c]['state'] = 'disabled'
+    buttons[r][c]['bg'] = 'white'
+    count = count_adjacent_mines(buttons, r, c)
+    if count > 0:
+        buttons[r][c]['text'] = str(count)
+    else:
+        for i in range(max(0, r-1), min(len(buttons), r+2)):
+            for j in range(max(0, c-1), min(len(buttons[0]), c+2)):
+                if (i, j) != (r, c):
+                    reveal(buttons, i, j)
 
 # Configuración de la ventana principal
 window = tk.Tk()
