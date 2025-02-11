@@ -1,5 +1,6 @@
 import tkinter as tk
 import random
+from tkinter import messagebox
 
 # Crear botones en la cuadrícula
 def create_buttons(frame, rows, cols):
@@ -31,7 +32,8 @@ def on_left_click(r, c):
     if (r, c) in mines:
         buttons[r][c]['text'] = 'M'
         buttons[r][c]['bg'] = 'red'
-        print("¡Has perdido!")
+        reveal_all_mines()
+        messagebox.showinfo("Game Over", "¡Has perdido!")
     else:
         buttons[r][c]['text'] = ''
         buttons[r][c]['bg'] = 'white'
@@ -45,6 +47,12 @@ def on_right_click(r, c):
     else:
         button['text'] = '🚩'
         button['bg'] = 'yellow'
+
+# Revelar todas las minas en la cuadrícula
+def reveal_all_mines():
+    for (r, c) in mines:
+        buttons[r][c]['text'] = 'M'
+        buttons[r][c]['bg'] = 'red'
 
 # Configuración de la ventana principal
 window = tk.Tk()
