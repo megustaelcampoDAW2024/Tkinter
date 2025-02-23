@@ -38,8 +38,9 @@ def cargar_contactos():
     for row in tree.get_children():
         tree.delete(row)
     cursor.execute('SELECT * FROM contacts')
-    for row in cursor.fetchall():
-        tree.insert('', 'end', values=row)
+    for index, row in enumerate(cursor.fetchall()):
+        tag = 'evenrow' if index % 2 == 0 else 'oddrow'
+        tree.insert('', 'end', values=row, tags=(tag,))
 
 def eliminar_contacto():
     seleccionado = tree.selection()
@@ -82,38 +83,77 @@ def limpiar_campos():
     entry_telefono.delete(0, tk.END)
     entry_email.delete(0, tk.END)
 
+def seleccionar_contacto(event):
+    seleccionado = tree.selection()
+    if seleccionado:
+        id_contacto = tree.item(seleccionado)['values'][0]
+        cursor.execute('SELECT * FROM contacts WHERE id = %s', (id_contacto,))
+        contacto = cursor.fetchone()
+        if contacto:
+            entry_nombre.delete(0, tk.END)
+            entry_nombre.insert(0, contacto[1])
+            entry_telefono.delete(0, tk.END)
+            entry_telefono.insert(0, contacto[2])
+            entry_email.delete(0, tk.END)
+            entry_email.insert(0, contacto[3])
+
 # Configuración de la interfaz gráfica
 root = tk.Tk()
 root.title('Gestión de Contactos')
-root.geometry('600x400')
+root.geometry('1200x600')
 
-ttk.Label(root, text='Nombre:').pack()
-entry_nombre = ttk.Entry(root)
-entry_nombre.pack()
+frame_main = ttk.Frame(root, padding=(200, 0))
+frame_main.pack(fill=tk.BOTH, expand=False)
 
-ttk.Label(root, text='Teléfono:').pack()
-entry_telefono = ttk.Entry(root)
-entry_telefono.pack()
+frame_top = ttk.Frame(frame_main)
+frame_top.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
 
-ttk.Label(root, text='Correo Electrónico:').pack()
-entry_email = ttk.Entry(root)
-entry_email.pack()
+frame_left = ttk.Frame(frame_top)
+frame_left.pack(side=tk.LEFT, fill=tk.Y, padx=10, pady=10)
 
-ttk.Button(root, text='Agregar', command=agregar_contacto).pack()
-ttk.Button(root, text='Actualizar', command=actualizar_contacto).pack()
-ttk.Button(root, text='Eliminar', command=eliminar_contacto).pack()
+frame_right = ttk.Frame(frame_top)
+frame_right.pack(side=tk.RIGHT, fill=tk.Y, padx=10, pady=10)
 
-ttk.Label(root, text='Buscar:').pack()
-entry_busqueda = ttk.Entry(root)
-entry_busqueda.pack()
+frame_search = ttk.Frame(frame_main)
+frame_search.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
+
+ttk.Label(frame_left, text='Nombre:').pack(anchor='w')
+entry_nombre = ttk.Entry(frame_left)
+entry_nombre.pack(fill=tk.X)
+
+ttk.Label(frame_left, text='Teléfono:').pack(anchor='w')
+entry_telefono = ttk.Entry(frame_left)
+entry_telefono.pack(fill=tk.X)
+
+ttk.Label(frame_left, text='Correo Electrónico:').pack(anchor='w')
+entry_email = ttk.Entry(frame_left)
+entry_email.pack(fill=tk.X)
+
+ttk.Button(frame_right, text='Agregar', command=agregar_contacto).pack(fill=tk.X, pady=5)
+ttk.Button(frame_right, text='Actualizar', command=actualizar_contacto).pack(fill=tk.X, pady=5)
+ttk.Button(frame_right, text='Eliminar', command=eliminar_contacto).pack(fill=tk.X, pady=5)
+ttk.Button(frame_right, text='Limpiar', command=limpiar_campos).pack(fill=tk.X, pady=5)
+
+ttk.Label(frame_search, text='Buscar:').pack(anchor='w')
+entry_busqueda = ttk.Entry(frame_search)
+entry_busqueda.pack(fill=tk.X)
 entry_busqueda.bind('<KeyRelease>', buscar_contacto)
 
-tree = ttk.Treeview(root, columns=('ID', 'Nombre', 'Teléfono', 'Email'), show='headings')
+tree = ttk.Treeview(frame_main, columns=('ID', 'Nombre', 'Teléfono', 'Email'), show='headings', height=15)
 tree.heading('ID', text='ID')
 tree.heading('Nombre', text='Nombre')
 tree.heading('Teléfono', text='Teléfono')
 tree.heading('Email', text='Email')
-tree.pack()
+tree.pack(fill=tk.BOTH, expand=True)
+
+# Configurar el color de fondo de los encabezados
+style = ttk.Style()
+style.configure('Treeview.Heading', background='lightgray')
+
+tree.tag_configure('oddrow', background='white')
+tree.tag_configure('evenrow', background='lightgray')
+
+tree.bind('<<TreeviewSelect>>', seleccionar_contacto)
 
 cargar_contactos()
 root.mainloop()
